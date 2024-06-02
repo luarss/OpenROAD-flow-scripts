@@ -882,6 +882,7 @@ def sweep():
     print('[INFO TUN-0009] Waiting for results.')
     ray.get(workers)
     print('[INFO TUN-0010] Sweep complete.')
+    sys.exit(0)
 
 
 if __name__ == '__main__':
@@ -960,5 +961,8 @@ if __name__ == '__main__':
         if analysis.best_result['minimum'] == ERROR_METRIC:
             print('[ERROR TUN-0016] No successful runs found.')
             sys.exit(1)
+
+        # if successful
+        sys.exit(0)
     elif args.mode == 'sweep':
         sweep()
