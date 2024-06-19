@@ -961,8 +961,5 @@ if __name__ == '__main__':
         if analysis.best_result['minimum'] == ERROR_METRIC:
             print('[ERROR TUN-0016] No successful runs found.')
             sys.exit(1)
-
-        # if successful
-        sys.exit(0)
     elif args.mode == 'sweep':
         sweep()
