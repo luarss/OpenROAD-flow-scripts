@@ -1,16 +1,15 @@
 # Base image 
 FROM openroad/flow-ubuntu22.04-builder:latest
 
-# Install pip packages
+# Set and assert that this arg is set
 ARG REQUIREMENTS_FILE
-
-# Assert that this arg is set
 RUN test -n "$REQUIREMENTS_FILE"
 
-
+# Install pip packages
+RUN python3 -m pip install -r /OpenROAD-flow-scripts/tools/AutoTuner/requirements.txt
 
 # Run the necessary commands and export the result
 # cd /OpenROAD-flow-scripts/tools/AutoTuner 
 # python3 distributed.py --design gcd --platform asap7 --config ../../../../flow/designs/asap7/gcd/autotuner.json tune --samples 50
 
-CMD ["python3", "distributed.py", "--design", "gcd", "--platform", "asap7", "--config", "../../../../flow/designs/asap7/gcd/autotuner.json", "tune", "--samples", "50"]
+# CMD ["python3", "distributed.py", "--design", "gcd", "--platform", "asap7", "--config", "../../../../flow/designs/asap7/gcd/autotuner.json", "tune", "--samples", "50"]
