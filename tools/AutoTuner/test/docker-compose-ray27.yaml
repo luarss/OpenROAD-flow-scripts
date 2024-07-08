@@ -1,13 +1,11 @@
 version: '3.8'
 services:
-  autotuner:
+  autotuner_ray27:
     build:
       context: ../../../
       dockerfile: ./tools/AutoTuner/test/Dockerfile
       args:
         REQUIREMENTS_FILE: ./tools/AutoTuner/requirements_ray27.txt
-        #REQUIREMENTS_FILE: ./tools/AutoTuner/requirements_ray28.txt
-        #REQUIREMENTS_FILE: ./tools/AutoTuner/requirements_ray29.txt
     volumes:
       - ../../../flow:/OpenROAD-flow-scripts/flow
       - ../../../tools/AutoTuner:/OpenROAD-flow-scripts/tools/AutoTuner
