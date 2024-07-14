@@ -18,10 +18,10 @@ CMD ["python3", "distributed.py", "--design", "gcd", "--platform", "asap7", "--c
 CMD ["python3", "distributed.py", "--design", "ibex", "--platform", "asap7", "--config", "../../../../flow/designs/asap7/ibex/autotuner.json", "tune", "--samples", "50"]
 CMD ["python3", "distributed.py", "--design", "aes", "--platform", "asap7", "--config", "../../../../flow/designs/asap7/aes/autotuner.json", "tune", "--samples", "50"]
 
-CMD ["python3", "distributed.py", "--design", "gcd", "--platform", "sky130hd", "--config", "../../../../flow/designs/sky130hd/gcd/autotuner.json", "tune", "--samples", "50"]
-CMD ["python3", "distributed.py", "--design", "ibex", "--platform", "sky130hd", "--config", "../../../../flow/designs/sky130hd/ibex/autotuner.json", "tune", "--samples", "50"]
-CMD ["python3", "distributed.py", "--design", "aes", "--platform", "sky130hd", "--config", "../../../../flow/designs/sky130hd/aes/autotuner.json", "tune", "--samples", "50"]
+# CMD ["python3", "distributed.py", "--design", "gcd", "--platform", "sky130hd", "--config", "../../../../flow/designs/sky130hd/gcd/autotuner.json", "tune", "--samples", "50"]
+# CMD ["python3", "distributed.py", "--design", "ibex", "--platform", "sky130hd", "--config", "../../../../flow/designs/sky130hd/ibex/autotuner.json", "tune", "--samples", "50"]
+# CMD ["python3", "distributed.py", "--design", "aes", "--platform", "sky130hd", "--config", "../../../../flow/designs/sky130hd/aes/autotuner.json", "tune", "--samples", "50"]
 
-CMD ["python3", "distributed.py", "--design", "gcd", "--platform", "ihp-sg13g2", "--config", "../../../../flow/designs/ihp-sg13g2/gcd/autotuner.json", "tune", "--samples", "50"]
-CMD ["python3", "distributed.py", "--design", "ibex", "--platform", "ihp-sg13g2", "--config", "../../../../flow/designs/ihp-sg13g2/ibex/autotuner.json", "tune", "--samples", "50"]
-CMD ["python3", "distributed.py", "--design", "aes", "--platform", "ihp-sg13g2", "--config", "../../../../flow/designs/ihp-sg13g2/aes/autotuner.json", "tune", "--samples", "50"]
+# CMD ["python3", "distributed.py", "--design", "gcd", "--platform", "ihp-sg13g2", "--config", "../../../../flow/designs/ihp-sg13g2/gcd/autotuner.json", "tune", "--samples", "50"]
+# CMD ["python3", "distributed.py", "--design", "ibex", "--platform", "ihp-sg13g2", "--config", "../../../../flow/designs/ihp-sg13g2/ibex/autotuner.json", "tune", "--samples", "50"]
+# CMD ["python3", "distributed.py", "--design", "aes", "--platform", "ihp-sg13g2", "--config", "../../../../flow/designs/ihp-sg13g2/aes/autotuner.json", "tune", "--samples", "50"]
