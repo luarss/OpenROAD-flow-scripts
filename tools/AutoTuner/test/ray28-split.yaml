@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  autotuner_ray28:
+    build:
+      context: ../../../
+      dockerfile: ./tools/AutoTuner/test/Dockerfile_split
+      args:
+        REQUIREMENTS_FILE: ./tools/AutoTuner/requirements_ray28.txt
+    environment:
+      DESIGN: ${DESIGN}
+      PLATFORM: ${PLATFORM}
+    volumes:
+      - ../../../flow:/OpenROAD-flow-scripts/flow
+      - ../../../tools/AutoTuner:/OpenROAD-flow-scripts/tools/AutoTuner
