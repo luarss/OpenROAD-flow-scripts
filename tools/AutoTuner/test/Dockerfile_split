@@ -17,4 +17,4 @@ WORKDIR /OpenROAD-flow-scripts/tools/AutoTuner/src/autotuner
 
 ARG DESIGN
 ARG PLATFORM
-CMD python3 distributed.py --design $DESIGN --platform $PLATFORM --config ../../../../flow/designs/${PLATFORM}/${DESIGN}/autotuner.json --jobs 10 tune --samples 50
+CMD python3 distributed.py --design $DESIGN --platform $PLATFORM --config ../../../../flow/designs/${PLATFORM}/${DESIGN}/autotuner.json --jobs 32 tune --samples 100

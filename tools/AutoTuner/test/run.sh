@@ -27,5 +27,8 @@ for DESIGN in "${DESIGN_LIST[@]}"; do
         # sleep 5000
         docker compose -f ray27-split.yaml down
         docker compose -f ray27-split.yaml log > ${DESIGN}_${PLATFORM}_ray27.log
+
+        # delete docker cache
+        docker system prune -a -f
     done
 done
