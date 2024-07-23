@@ -23,9 +23,9 @@ for DESIGN in "${DESIGN_LIST[@]}"; do
         sed "s|{{DESIGN}}|${DESIGN}|g" .env.example > .env.tmp
         sed "s|{{PLATFORM}}|${PLATFORM}|g" .env.tmp > .env
         docker compose -f ray27-split.yaml build --no-cache
-        docker compose -f ray27-split.yaml up -d
-        # docker compose -f ray27-split.yaml down
-        exit 1
-        # sleep 5
+        docker compose -f ray27-split.yaml up
+        # sleep 5000
+        docker compose -f ray27-split.yaml down
+        docker compose -f ray27-split.yaml log > ${DESIGN}_${PLATFORM}_ray27.log
     done
 done
