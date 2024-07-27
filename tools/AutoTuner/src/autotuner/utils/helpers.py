@@ -4,7 +4,6 @@ import glob
 import re
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_DIR = os.path.join(CUR_DIR, '../../../../../flow/logs/asap7/gcd')
 
 def load_dir(dir: str) -> pd.DataFrame:
     """
@@ -37,21 +36,26 @@ def peak_memory_in_dir(dir: str) -> float:
     max_memory = max_memory/1000000
     return max_memory
 
+def runtime_in_dir(dir: str) -> float:
+    """
+    Return runtime and peak runtime
+    """
+    df = load_dir(dir)
+    total_runtime = df["time_total_s"].sum()
+    peak_runtime = df["time_total_s"].max()
+    return total_runtime, peak_runtime
+
 if __name__ == "__main__":
-    path = "test-tune-2024-07-07-13-45-50"
+    design = "ibex"
+    platform = "asap7"
+    LOG_DIR = os.path.join(CUR_DIR, f'../../../../../flow/logs/{platform}/{design}/')
+    # from a dir pick the latest test-tune folder
+    path = sorted(os.listdir(LOG_DIR))[-1]
     path = os.path.join(LOG_DIR, path)
-    print(f"Max Memory (GB): {peak_memory_in_dir(path)}")
-    # df = load_dir(path)
-    # df.to_csv("ray27.csv", index=False)
-
-    path = "test-tune-2024-07-07-13-31-40"
-    path = os.path.join(LOG_DIR, path)
-    print(f"Max Memory (GB): {peak_memory_in_dir(path)}")
-    # df = load_dir(path)
-    # df.to_csv("ray28.csv", index=False)
-
-    path = "test-tune-2024-07-07-13-57-06"
-    path = os.path.join(LOG_DIR, path)
-    print(f"Max Memory (GB): {peak_memory_in_dir(path)}")
-    # df = load_dir(path)
-    # df.to_csv("ray29.csv", index=False)
+    assert len(os.listdir(path)) > 200, f"Should have ~100 trials, only have {len(os.listdir(path))/2}"
+    print("Folder:", path)
+    # Print 3 decimal places
+    print(f"Max Memory (GB): {peak_memory_in_dir(path):.3f}")
+    total_runtime, peak_runtime = runtime_in_dir(path)
+    print(f"Total runtime: {total_runtime:.3f} s, Peak runtime: {peak_runtime:.3f} s")
+ 

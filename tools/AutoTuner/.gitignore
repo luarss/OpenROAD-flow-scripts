@@ -9,3 +9,5 @@ __pycache__/
 
 # Autotuner env
 autotuner_env
+*.log
+.env
