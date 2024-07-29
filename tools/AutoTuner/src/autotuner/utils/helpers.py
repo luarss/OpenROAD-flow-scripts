@@ -46,16 +46,27 @@ def runtime_in_dir(dir: str) -> float:
     return total_runtime, peak_runtime
 
 if __name__ == "__main__":
-    design = "ibex"
+    design = "gcd"
     platform = "asap7"
     LOG_DIR = os.path.join(CUR_DIR, f'../../../../../flow/logs/{platform}/{design}/')
-    # from a dir pick the latest test-tune folder
-    path = sorted(os.listdir(LOG_DIR))[-1]
-    path = os.path.join(LOG_DIR, path)
-    assert len(os.listdir(path)) > 200, f"Should have ~100 trials, only have {len(os.listdir(path))/2}"
-    print("Folder:", path)
-    # Print 3 decimal places
-    print(f"Max Memory (GB): {peak_memory_in_dir(path):.3f}")
-    total_runtime, peak_runtime = runtime_in_dir(path)
-    print(f"Total runtime: {total_runtime:.3f} s, Peak runtime: {peak_runtime:.3f} s")
- 
+    prefix = ["ray27", "ray28", "ray29"]    
+    # from a dir pick the 3 latest folders
+    paths = sorted(os.listdir(LOG_DIR))[-3:]
+    for i, path in enumerate(paths):
+        path = os.path.join(LOG_DIR, path)
+        print("----------")
+        filename = f"{prefix[i]}-{design}-{platform}.csv"
+        print("Filename:", filename)
+        print("Folder:", path)
+        print("Number of trials:", len(os.listdir(path))/2)
+        if len(os.listdir(path)) < 200:
+            print(f"Should have ~100 trials, only have {len(os.listdir(path))/2}")
+            continue
+        # Print 3 decimal places
+        print(f"Max Memory (GB): {peak_memory_in_dir(path):.3f}")
+        total_runtime, peak_runtime = runtime_in_dir(path)
+        print(f"Total runtime: {total_runtime:.3f} s, Peak runtime: {peak_runtime:.3f} s")
+
+        # Export csv
+        df = load_dir(path)
+        df.to_csv(filename, index=False)
