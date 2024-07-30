@@ -46,6 +46,9 @@ def runtime_in_dir(dir: str) -> float:
     return total_runtime, peak_runtime
 
 if __name__ == "__main__":
+    # PROTIP: Do `rg -l <HOSTNAME>` in `./flow/logs` to find out the folder names of each trial 
+    # e.g. `rg -l 7dc26b0337d4`
+
     design = "gcd"
     platform = "asap7"
     LOG_DIR = os.path.join(CUR_DIR, f'../../../../../flow/logs/{platform}/{design}/')

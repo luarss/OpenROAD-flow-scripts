@@ -9,6 +9,7 @@ services:
     environment:
       DESIGN: ${DESIGN}
       PLATFORM: ${PLATFORM}
+      JOBS: ${JOBS}
     volumes:
       - ../../../flow:/OpenROAD-flow-scripts/flow
       - ../../../tools/AutoTuner:/OpenROAD-flow-scripts/tools/AutoTuner
