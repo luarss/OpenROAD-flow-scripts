@@ -1,18 +1,17 @@
 #!/bin/bash
 
-TIMEOUT=18000 # 5h
+# This script is used to generate 10 different runs.
+
 DESIGN_LIST=("gcd" "aes" "ibex")
 PLATFORM_LIST=("asap7" "sky130hd" "ihp-sg13g2")
-RAY_LIST=("27" "28" "29")
+NUM_TRIALS=10
+JOBS_ASAP7_AES=2 # peak: 16Gb
+JOBS_ASAP7_IBEX=3 # peak: 13Gb
+JOBS_DEFAULT=6
 
-# Determine number of cores (Values are chosen based on 64core, 512Gb machine, adjust accordingly)
-JOBS_ASAP7_AES=30 # peak: 16Gb
-JOBS_ASAP7_IBEX=38 # peak: 13Gb
-JOBS_DEFAULT=64
-
-for RAY in "${RAY_LIST[@]}"; do
-    for DESIGN in "${DESIGN_LIST[@]}"; do
-        for PLATFORM in "${PLATFORM_LIST[@]}"; do
+for DESIGN in "${DESIGN_LIST[@]}"; do
+   for PLATFORM in "${PLATFORM_LIST[@]}"; do
+        for i in $(seq 1 $NUM_TRIALS); do
             if [ "$DESIGN" == "aes" ] && [ "$PLATFORM" == "asap7" ]; then
                 JOBS=$JOBS_ASAP7_AES
             elif [ "$DESIGN" == "ibex" ] && [ "$PLATFORM" == "asap7" ]; then
@@ -25,8 +24,8 @@ for RAY in "${RAY_LIST[@]}"; do
             sed -i "s|{{DESIGN}}|${DESIGN}|g" .env
             sed -i "s|{{PLATFORM}}|${PLATFORM}|g" .env
             sed -i "s|{{JOBS}}|${JOBS}|g" .env 
-            
-            filename=${DESIGN}_${PLATFORM}_ray${RAY}.log
+
+            filename=${DESIGN}_${PLATFORM}_run${i}.log
             touch $filename
             docker compose -f ray${RAY}-split.yaml build --no-cache
             docker compose -f ray${RAY}-split.yaml up -d
@@ -42,8 +41,7 @@ for RAY in "${RAY_LIST[@]}"; do
             # delete docker cache
             docker builder prune -f
         done
+        # wait till all docker containers are down also, how to we make this parallel?
+
     done
 done
-
-# Cleanup dangling images
-docker rmi $(docker images -f “dangling=true” -q)
