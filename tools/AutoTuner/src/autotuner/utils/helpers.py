@@ -49,8 +49,8 @@ if __name__ == "__main__":
     # PROTIP: Do `rg -l <HOSTNAME>` in `./flow/logs` to find out the folder names of each trial 
     # e.g. `rg -l 7dc26b0337d4`
 
-    design = "gcd"
-    platform = "asap7"
+    design = "ibex"
+    platform = "ihp-sg13g2"
     LOG_DIR = os.path.join(CUR_DIR, f'../../../../../flow/logs/{platform}/{design}/')
     prefix = ["ray27", "ray28", "ray29"]    
     # from a dir pick the 3 latest folders
