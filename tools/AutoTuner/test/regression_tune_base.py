@@ -28,18 +28,24 @@ def load_df(filename):
     df = df.drop(columns=cols_to_remove)
     return df
 
+def get_latest_data(path):
+    latest_path = get_latest_date(path)
+    print("Using folder:", latest_path)
+    combine_csv(latest_path)
+    return load_df(f"{latest_path}/progress_overall.csv")
+
 class BaseTuneRegressionBaseTest(unittest.TestCase):
     platform = ""
     design = ""
     qor = 0
-    CONFIDENCE_INTERVAL = 0.05
+    THRESHOLD = 0.05 # qor mean is within +- 5% of the expected value
 
     def setUp(self):
         self.config = os.path.join(
             cur_dir,
             f"../../../flow/designs/{self.platform}/{self.design}/autotuner.json",
         )
-        self.experiment = f"smoke-test-tune-{self.platform}"
+        self.experiment = f"test-regression"
         self.command = (
             "python3 distributed.py"
             f" --design {self.design}"
@@ -53,20 +59,49 @@ class BaseTuneRegressionBaseTest(unittest.TestCase):
 class ASAP7TuneRegressionBaseTest(BaseTuneRegressionBaseTest):
     platform = "asap7"
     design = "gcd"
-    qor = 37668.29
+    qor = 37668.290
 
     def test_tune(self):
-        # out = subprocess.run(self.command, shell=True, check=True)
-        # successful = out.returncode == 0
-        # self.assertTrue(successful)
+        out = subprocess.run(self.command, shell=True, check=True)
+        successful = out.returncode == 0
+        self.assertTrue(successful)
 
-        # check if the final mean QoR is within 1% of the expected value
-        latest_path = get_latest_date(f"../../../../flow/logs/{self.platform}/{self.design}")
-        combine_csv(latest_path)
-        df = load_df(f"{latest_path}/progress_overall.csv")
+        # check if final mean QoR is within confidence interval of expected value
+        df = get_latest_data(f"../../../../flow/logs/{self.platform}/{self.design}")
         mean_qor = df["minimum"].mean()
-        self.assertLess(abs(mean_qor - self.qor) / self.qor, self.CONFIDENCE_INTERVAL)
+        self.assertLess(abs(mean_qor - self.qor) / self.qor, (1-self.THRESHOLD))
 
+
+class SKY130HDTuneRegressionBaseTest(BaseTuneRegressionBaseTest):
+    platform = "sky130hd"
+    design = "gcd"
+    qor = 327.023
+
+    def test_tune(self):
+        out = subprocess.run(self.command, shell=True, check=True)
+        successful = out.returncode == 0
+        self.assertTrue(successful)
+
+        # check if final mean QoR is within confidence interval of expected value
+        df = get_latest_data(f"../../../../flow/logs/{self.platform}/{self.design}")
+        mean_qor = df["minimum"].mean()
+        self.assertLess(abs(mean_qor - self.qor) / self.qor, (1-self.THRESHOLD))
+
+
+class IHPSG13G2TuneRegressionBaseTest(BaseTuneRegressionBaseTest):
+    platform = "ihp-sg13g2"
+    design = "gcd"
+    qor = 251.102
+
+    def test_tune(self):
+        out = subprocess.run(self.command, shell=True, check=True)
+        successful = out.returncode == 0
+        self.assertTrue(successful)
+
+        # check if final mean QoR is within confidence interval of expected value
+        df = get_latest_data(f"../../../../flow/logs/{self.platform}/{self.design}")
+        mean_qor = df["minimum"].mean()
+        self.assertLess(abs(mean_qor - self.qor) / self.qor, (1-self.THRESHOLD))
 
 if __name__ == "__main__":
     unittest.main()
