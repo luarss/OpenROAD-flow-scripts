@@ -104,20 +104,53 @@ class IHPSG13G2TuneRegressionGCDTest(BaseTuneRegressionBaseTest):
         self.assertLess(abs(median_qor - self.qor) / self.qor, self.THRESHOLD)
 
 
-# class ASAP7TuneRegressionAESTest(BaseTuneRegressionBaseTest):
-#     platform = "asap7"
-#     design = "aes"
-#     qor = 70934.140
+class ASAP7TuneRegressionAESTest(BaseTuneRegressionBaseTest):
+    platform = "asap7"
+    design = "aes"
+    qor = 70934.140
 
-#     def test_tune(self):
-#         out = subprocess.run(self.command, shell=True, check=True)
-#         successful = out.returncode == 0
-#         self.assertTrue(successful)
+    def test_tune(self):
+        out = subprocess.run(self.command, shell=True, check=True)
+        successful = out.returncode == 0
+        self.assertTrue(successful)
 
-#         # check if final mean QoR is within confidence interval of expected value
-#         df = get_latest_data(f"../../../../flow/logs/{self.platform}/{self.design}")
-#         mean_qor = df["minimum"].mean()
-#         self.assertLess(abs(mean_qor - self.qor) / self.qor, (1-self.THRESHOLD))
+        # check if final mean QoR is within confidence interval of expected value
+        df = get_latest_data(f"../../../../flow/logs/{self.platform}/{self.design}")
+        mean_qor = df["minimum"].mean()
+        self.assertLess(abs(mean_qor - self.qor) / self.qor, (1-self.THRESHOLD))
+
+
+class SKY130HDTuneRegressionAESTest(BaseTuneRegressionBaseTest):
+    platform = "sky130hd"
+    design = "aes"
+    qor = 546.433
+
+    def test_tune(self):
+        out = subprocess.run(self.command, shell=True, check=True)
+        successful = out.returncode == 0
+        self.assertTrue(successful)
+
+        # check if final mean QoR is within confidence interval of expected value
+        df = get_latest_data(f"../../../../flow/logs/{self.platform}/{self.design}")
+        mean_qor = df["minimum"].mean()
+        self.assertLess(abs(mean_qor - self.qor) / self.qor, (1-self.THRESHOLD))
+
+
+class IHPSG13G2TuneRegressionAESTest(BaseTuneRegressionBaseTest):
+    platform = "ihp-sg13g2"
+    design = "aes"
+    qor = 544.835
+
+    def test_tune(self):
+        out = subprocess.run(self.command, shell=True, check=True)
+        successful = out.returncode == 0
+        self.assertTrue(successful)
+
+        # check if final mean QoR is within confidence interval of expected value
+        df = get_latest_data(f"../../../../flow/logs/{self.platform}/{self.design}")
+        mean_qor = df["minimum"].mean()
+        self.assertLess(abs(mean_qor - self.qor) / self.qor, (1-self.THRESHOLD))
+
 
 if __name__ == "__main__":
     unittest.main()
