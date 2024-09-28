@@ -1,11 +1,37 @@
 import glob
+import json
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import re
+
+AT_REGEX = r"variant-AutoTunerBase-([\w-]+)-\w+"
 
 
 def load_dir(dir: str) -> pd.DataFrame:
-    # Concatenate DFs
+    # Concatenate progress DFs
     df = pd.concat([pd.read_csv(fname) for fname in glob.glob(f"{dir}/*/progress.csv")])
+
+    # Concatenate params.json & metrics.json file
+    params = []
+    for fname in glob.glob(f"{dir}/*/params.json"):
+        try:
+            with open(fname, 'r') as f:
+                _dict = json.load(f)
+                _dict["trial_id"] = re.search(AT_REGEX, fname).group(1)
+            with open(fname.replace("params.json", "metrics.json"), 'r') as f:
+                metrics = json.load(f)
+                ws = metrics["finish"]["timing__setup__ws"]
+                metrics["worst_slack"] = ws
+                _dict.update(metrics)
+            params.append(_dict)
+        except Exception as e:
+            print(f"Error in {fname}: {e}")
+            continue
+    tmp_df = pd.DataFrame(params)
+
+    # Merge all dataframe
+    df = df.merge(tmp_df, on="trial_id")
     return df
 
 
@@ -13,7 +39,6 @@ def preprocess(df: pd.DataFrame) -> pd.DataFrame:
     cols_to_remove = [
         "done",
         "training_iteration",
-        "trial_id",
         "date",
         "pid",
         "hostname",
@@ -22,51 +47,48 @@ def preprocess(df: pd.DataFrame) -> pd.DataFrame:
         "time_total_s",
         "iterations_since_restore",
     ]
+    rename_dict = {
+        "time_this_iter_s": "runtime",
+        "_SDC_CLK_PERIOD": "clk_period",
+        "minimum": "qor"
+    }
+    df = df.rename(columns=rename_dict)
     df = df.drop(columns=cols_to_remove)
-    df = df[df["minimum"] != 9e99]
+    df = df[df["qor"] != 9e99]
     df["timestamp"] -= df["timestamp"].min()
     return df
 
 
-def plot_qor(df: pd.DataFrame):
-    # Plots: Boxplot and time series plot for QoR and runtime
-    fig, ax = plt.subplots(2, figsize=(15, 10))
-    ax[0].scatter(df["timestamp"], df["minimum"])
-    ax[0].set_xlabel("Time (s)")
-    ax[0].set_ylabel("QoR")
-    ax[0].set_title("QoR vs Time")
-
-    ax[1].scatter(df["timestamp"], df["time_this_iter_s"])
-    ax[1].set_xlabel("Time (s)")
-    ax[1].set_ylabel("Trial runtime (s)")
-    plt.savefig("images/qor.png")
+def plot_wrapper(df: pd.DataFrame, key: str):
+    # Plot box plot and time series plot for key
+    fig, ax = plt.subplots(1, figsize=(15, 10))
+    ax.scatter(df["timestamp"], df[key])
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel(key)
+    ax.set_title(f"{key} vs Time")
+    z = np.polyfit(df["timestamp"], df[key], 1)
+    p = np.poly1d(z)
+    ax.plot(df["timestamp"], p(df["timestamp"]), "r--", label=f"y={z[0]:.2f}x+{z[1]:.2f}")
+    ax.legend()
+    fig.savefig(f"images/{key}.png")
 
     plt.figure(figsize=(15, 10))
-    plt.boxplot(df["minimum"])
-    plt.ylabel("QoR")
-    plt.title("QoR Boxplot")
-    plt.savefig("images/qor-boxplot.png")
+    plt.boxplot(df[key])
+    plt.ylabel(key)
+    plt.title(f"{key} Boxplot")
+    plt.savefig(f"images/{key}-boxplot.png")
 
-
-def plot(df: pd.DataFrame, metric: str):
-    assert metric in ["qor", "period", "worst_slack"]
-    if metric == "qor":
-        plot_qor(df)
-    elif metric == "period":
-        # plot_period(df)
-        pass
-    elif metric == "worst_slack":
-        # plot_worst_slack(df)
-        pass
+def plot(df: pd.DataFrame, key: str):
+    plot_wrapper(df, key)
 
 
 def main(results_dir: str):
     df = load_dir(results_dir)
     df = preprocess(df)
-    plot(df, "qor")
-    plot(df, "period")
-    # plot(df, "worst_slack")
-
+    keys = ["qor", "runtime", "clk_period", "worst_slack"]
+    for key in keys:
+        plot(df, key)
+    
 
 if __name__ == "__main__":
     main("../../../../../flow/logs/asap7/gcd/test-tune-2024-09-17-12-00-44")
