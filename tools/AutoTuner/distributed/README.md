@@ -1,26 +1,49 @@
-1) Setup two AT instances on same internal network
-2) Setup the requirements
+# Ray Cluster Setup on Google Cloud Platform (GCP)
 
+This tutorial covers the setup of Ray Clusters on GCP. Ray Clusters are a way to
+start compute intensive jobs (e.g. Autotuner) on a distributed set of nodes spawned 
+automatically. For more information on Ray Cluster, refer to [here](https://docs.ray.io/en/latest/cluster/getting-started.html).
+
+To run Autotuner jobs on Ray Cluster, we have to first install ORFS onto the
+GCP nodes.
+
+There are two different ways for ORFS setup on Ray Cluster, namely:
+- [Public](#public-cluster-setup): Upload Docker image to Dockerhub (or any public Docker registry).
+- [Private](#private-cluster-setup): Upload local code to Dockerhub, and re-compile on 
+
+## Prerequisites
+
+Make sure Autotuner prerequisites are installed. To do so, refer to the installation script.
+
+```bash
+make init
 ```
-sudo apt-get install -y python3-pip python3-venv
-python3 -m venv .venv
-.venv/bin/activate && pip install ray[tune]
 
+## Public cluster setup
+
+1. Set up `.env` with Docker registry username/password. Also, set up the `public.yaml`
+file accordingly to your desired specifications.
+
+```bash
+cp .env.sample .env
+cp public.yaml.template public.yaml
 ```
 
-3) Common setup script
-- `at_distributed.sh`
+2. Run the following commands to build, tag and upload the public image:
 
-4) Worker script
-- `at_worker.py`
-- `mkdir -p /tmp/owo && touch /tmp/owo/abc`
+```bash
+make clean
+make base
+make docker
+make upload
+```
 
+3. Launch your cluster as follows:
 
-5) Benchmark file transfers (do on worker)
-- Observation: sync_dir just makes sure the files are sync-ed. So neat feature is that only file diffs are transffered.
-- You do not have to create the dest_dir, sync_dir does that for you.
-- `max_size_bytes` is limited to 1GiB. So we have to lift up the restriction manually if needed.
-- Bottleneck seems to start at 1GiB transfers and above
-- `dd if=/dev/zero of=/tmp/owo/owo bs=1M count=100` - creates 100MB file. (Time taken: 2.2103039264678954 ± 0.556972017400803)
-- `dd if=/dev/zero of=/tmp/owo/owo bs=1M count=1000` - creates 1Gb file. (Time taken: 8.897777223587036 ± 0.6503669298689543)
-- `dd if=/dev/zero of=/tmp/owo/owo bs=1M count=5000` - creates 5Gb file. (Time taken: 54.920665216445926 ± 1.0533714623736783)
+```bash
+make up
+```
+
+## Private cluster setup
+
+Coming soon.

@@ -10,3 +10,7 @@ __pycache__/
 # Autotuner env
 autotuner_env
 .env
+
+# Ray distributed
+public.yaml
+private.yaml
