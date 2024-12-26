@@ -32,8 +32,8 @@ upload:
 
 up:
 	@echo "Starting Ray cluster..."
-	@. .venv/bin/activate && ray up -y public.yaml
+	@ray up -y public.yaml
 
 down:
 	@echo "Stopping Ray cluster..."
-	@. .venv/bin/activate && ray down -y public.yaml
+	@ray down -y public.yaml

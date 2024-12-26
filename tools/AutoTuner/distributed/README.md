@@ -16,10 +16,17 @@ There are two different ways for ORFS setup on Ray Cluster, namely:
 Make sure Autotuner prerequisites are installed. To do so, refer to the installation script.
 
 ```bash
-make init
+pip install ray google-api-python-client cryptography
 ```
 
 ## Public cluster setup
+
+0. Authenticate the necessary GCP account with enough privileges to do:
+- `setIamPolicy`
+
+```bash
+gcloud auth application-default login
+```
 
 1. Set up `.env` with Docker registry username/password. Also, set up the `public.yaml`
 file accordingly to your desired specifications.
