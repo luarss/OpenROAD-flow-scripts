@@ -9,7 +9,14 @@ GCP nodes.
 
 There are two different ways for ORFS setup on Ray Cluster, namely:
 - [Public](#public-cluster-setup): Upload Docker image to Dockerhub (or any public Docker registry).
-- [Private](#private-cluster-setup): Upload local code to Dockerhub, and re-compile on 
+- [Private](#private-cluster-setup): Upload Docker image to private registry. Authentication needs then to be handled for Kubernetes. 
+
+```note
+Currently it looks like the `autoscaler.yaml` file might only be used for public.yaml
+For private deployments, we might have to use KubeRay
+1. https://github.com/GoogleCloudPlatform/ai-on-gke/tree/main/ray-on-gke
+2. https://www.paulsblog.dev/how-to-install-a-private-docker-container-registry-in-kubernetes/
+```
 
 ## Prerequisites
 
