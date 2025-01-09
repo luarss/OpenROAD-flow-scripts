@@ -27,7 +27,9 @@ upload:
 	@export BASE_TAG=$(shell cd ../../../ && ./etc/DockerTag.sh -dev) && \
 		echo "Base image: $$BASE_TAG" && \
 		docker tag orfs-autotuner:latest ${DOCKERHUB_USERNAME}/orfs-autotuner:$$BASE_TAG && \
-		docker push ${DOCKERHUB_USERNAME}/orfs-autotuner:$$BASE_TAG
+		docker tag orfs-autotuner:latest ${DOCKERHUB_USERNAME}/orfs-autotuner:latest && \
+		docker push ${DOCKERHUB_USERNAME}/orfs-autotuner:$$BASE_TAG && \
+		docker push ${DOCKERHUB_USERNAME}/orfs-autotuner:latest
 	@docker logout
 
 up:
