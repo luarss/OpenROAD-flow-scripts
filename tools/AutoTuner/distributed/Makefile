@@ -1,4 +1,4 @@
-.PHONY: clean
+.PHONY: init clean base docker upload up down dashboard
 include .env
 export
 
@@ -39,3 +39,7 @@ up:
 down:
 	@echo "Stopping Ray cluster..."
 	@ray down -y public.yaml
+
+dashboard:
+	@echo "Starting Ray dashboard..."
+	@ray dashboard public.yaml
