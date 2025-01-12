@@ -18,12 +18,19 @@ For private deployments, we might have to use KubeRay
 2. https://www.paulsblog.dev/how-to-install-a-private-docker-container-registry-in-kubernetes/
 ```
 
+## TODO
+
+- Public flow, fixed: via ray cli
+- Public flow, fixed: via autotuner script
+- Public flow, autoscaling
+- test using private registry on dockerhub same flow
+
 ## Prerequisites
 
 Make sure Autotuner prerequisites are installed. To do so, refer to the installation script.
 
 ```bash
-pip install ray google-api-python-client cryptography
+pip install ray[default] google-api-python-client cryptography
 ```
 
 ## Public cluster setup
