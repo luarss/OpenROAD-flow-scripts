@@ -7,6 +7,11 @@ automatically. For more information on Ray Cluster, refer to [here](https://docs
 To run Autotuner jobs on Ray Cluster, we have to first install ORFS onto the
 GCP nodes.
 
+How does this differ from the previous Kubernetes approach?
+- Support for autoscaling
+- Faster startup time using Docker (no need for JIT rebuilds of runtime dependencies)
+- Simplified architecture and codebase
+
 There are two different ways for ORFS setup on Ray Cluster, namely:
 - [Public](#public-cluster-setup): Upload Docker image to Dockerhub (or any public Docker registry).
 - [Private](#private-cluster-setup): Upload Docker image to private registry. Authentication needs then to be handled for Kubernetes. 
@@ -20,8 +25,10 @@ For private deployments, we might have to use KubeRay
 
 ## TODO
 
-- Public flow, fixed: via ray cli
 - Public flow, fixed: via autotuner script
+    - Tune
+    - Sweep
+- Public flow, fixed: via ray API.
 - Public flow, autoscaling
 - test using private registry on dockerhub same flow
 
