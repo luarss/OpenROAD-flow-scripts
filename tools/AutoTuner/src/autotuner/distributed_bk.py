@@ -77,7 +77,7 @@ class AutoTunerBase(tune.Trainable):
         """
         # We create the following directory structure:
         #      1/     2/         3/       4/                5/   6/
-        # <repo>/<logs>/<platform>/<design>/<experiment>/<id>/<cwd>
+        # <repo>/<logs>/<platform>/<design>/<experiment>-DATE/<id>/<cwd>
         repo_dir = os.getcwd() + "/../" * 6
         self.repo_dir = os.path.abspath(repo_dir)
         self.parameters = parse_config(config, path=os.getcwd())
@@ -88,8 +88,7 @@ class AutoTunerBase(tune.Trainable):
         """
         Run step experiment and compute its score.
         """
-        self._variant = f"{self.variant}-{self.step_}"
-        metrics_file = openroad(self.repo_dir, self.parameters, self._variant)
+        metrics_file = openroad(self.repo_dir, self.parameters, self.variant)
         self.step_ += 1
         (score, effective_clk_period, num_drc) = self.evaluate(
             self.read_metrics(metrics_file)
@@ -609,6 +608,55 @@ def openroad(base_dir, parameters, flow_variant, path=""):
     return metrics_file
 
 
+def clone(path):
+    """
+    Clone base repo in the remote machine. Only used for Kubernetes at GCP.
+    """
+    if args.git_clone:
+        run_command(f"rm -rf {path}")
+    if not os.path.isdir(f"{path}/.git"):
+        git_command = "git clone --depth 1 --recursive --single-branch"
+        git_command += f" {args.git_clone_args}"
+        git_command += f" --branch {args.git_orfs_branch}"
+        git_command += f" {args.git_url} {path}"
+        run_command(git_command)
+
+
+def build(base, install):
+    """
+    Build OpenROAD, Yosys and other dependencies.
+    """
+    build_command = f'cd "{base}"'
+    if args.git_clean:
+        build_command += " && git clean -xdf tools"
+        build_command += " && git submodule foreach --recursive git clean -xdf"
+    if (
+        args.git_clean
+        or not os.path.isfile(f"{install}/OpenROAD/bin/openroad")
+        or not os.path.isfile(f"{install}/yosys/bin/yosys")
+    ):
+        build_command += ' && bash -ic "./build_openroad.sh'
+        # Some GCP machines have 200+ cores. Let's be reasonable...
+        build_command += f" --local --nice --threads {min(32, cpu_count())}"
+        if args.git_latest:
+            build_command += " --latest"
+        build_command += f' {args.build_args}"'
+    run_command(build_command)
+
+
+@ray.remote
+def setup_repo(base):
+    """
+    Clone ORFS repository and compile binaries.
+    """
+    print(f"[INFO TUN-0000] Remote folder: {base}")
+    install = f"{base}/tools/install"
+    if args.server is not None:
+        clone(base)
+    build(base, install)
+    return install
+
+
 def parse_arguments():
     """
     Parse arguments from command line.
@@ -661,10 +709,7 @@ def parse_arguments():
         help="Time limit (in hours) for each trial run. Default is no limit.",
     )
     tune_parser.add_argument(
-        "--resume",
-        action="store_true",
-        help="Resume previous run. Note that you must also set a unique experiment\
-                name identifier via `--experiment NAME` to be able to resume.",
+        "--resume", action="store_true", help="Resume previous run."
     )
 
     # Setup
@@ -752,8 +797,8 @@ def parse_arguments():
     )
     tune_parser.add_argument(
         "--resources_per_trial",
-        type=float,
-        metavar="<float>",
+        type=int,
+        metavar="<int>",
         default=1,
         help="Number of CPUs to request for each tuning job.",
     )
@@ -829,20 +874,7 @@ def parse_arguments():
             )
             sys.exit(7)
 
-        # Check for experiment name and resume flag.
-        if arguments.resume and arguments.experiment == "test":
-            print(
-                '[ERROR TUN-0031] The flag "--resume"'
-                ' requires that "--experiment NAME" is also given.'
-            )
-            sys.exit(1)
-
-    # If the experiment name is the default, add a UUID to the end.
-    if arguments.experiment == "test":
-        id = str(uuid())[:8]
-        arguments.experiment = f"{arguments.mode}-{id}"
-    else:
-        arguments.experiment += f"-{arguments.mode}"
+    arguments.experiment += f"-{arguments.mode}-{DATE}"
 
     if arguments.timeout is not None:
         arguments.timeout = round(arguments.timeout * 3600)
@@ -998,11 +1030,23 @@ if __name__ == "__main__":
 
     # Connect to remote Ray server if any, otherwise will run locally
     if args.server is not None:
+        # At GCP we have a NFS folder that is present for all worker nodes.
+        # This allows to build required binaries once. We clone, build and
+        # store intermediate files at LOCAL_DIR.
+        with open(args.config) as config_file:
+            LOCAL_DIR = "/shared-data/autotuner"
+            LOCAL_DIR += f"-orfs-{args.git_orfs_branch}"
+            if args.git_or_branch != "":
+                LOCAL_DIR += f"-or-{args.git_or_branch}"
+            if args.git_latest:
+                LOCAL_DIR += "-or-latest"
         # Connect to ray server before first remote execution.
         ray.init(f"ray://{args.server}:{args.port}")
         # Remote functions return a task id and are non-blocking. Since we
         # need the setup repo before continuing, we call ray.get() to wait
         # for its completion.
+        INSTALL_PATH = ray.get(setup_repo.remote(LOCAL_DIR))
+        LOCAL_DIR += f"/flow/logs/{args.platform}/{args.design}"
         print("[INFO TUN-0001] NFS setup completed.")
     else:
         # For local runs, use the same folder as other ORFS utilities.
@@ -1031,7 +1075,7 @@ if __name__ == "__main__":
             local_dir=LOCAL_DIR,
             resume=args.resume,
             stop={"training_iteration": args.iterations},
-            resources_per_trial={"cpu": os.cpu_count() / args.jobs},
+            resources_per_trial={"cpu": args.resources_per_trial},
             log_to_file=["trail-out.log", "trail-err.log"],
             trial_name_creator=lambda x: f"variant-{x.trainable_name}-{x.trial_id}-ray",
             trial_dirname_creator=lambda x: f"variant-{x.trainable_name}-{x.trial_id}-ray",
