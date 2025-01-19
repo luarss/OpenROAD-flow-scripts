@@ -72,6 +72,14 @@ make upload
 make up
 ```
 
+4. Ray CLI API
+
+```bash
+ray job submit --address http://localhost:8265 \
+    --runtime-env '{"container": {"image": "jluarprecisioninno/orfs-autotuner:latest"}}' \
+    -- ls /home/
+```
+
 ## Private cluster setup
 
 Coming soon.

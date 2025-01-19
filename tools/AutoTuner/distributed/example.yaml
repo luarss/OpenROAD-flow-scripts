@@ -1,5 +1,5 @@
 # An unique identifier for the head node and workers of this cluster.
-cluster_name: autotuner
+cluster_name: default
 
 # The maximum number of workers nodes to launch in addition to the head
 # node.
@@ -15,14 +15,23 @@ upscaling_speed: 1.0
 # and opens all the necessary ports to support the Ray cluster.
 # Empty string means disabled.
 docker:
-  image: "orfs-autotuner:latest"
+  image: rayproject/ray:latest-gpu   # use this one if you don't need ML dependencies, it's faster to pull
   container_name: "ray_container"
   # If true, pulls latest version of image. Otherwise, `docker run` will only pull the image
   # if no cached version is present.
-  pull_before_run: true
+  pull_before_run: True
+  run_options:  # Extra options to pass into "docker run"
+    - --ulimit nofile=65536:65536
+
+  # Example of running a GPU head with CPU workers
+  # head_image: "rayproject/ray-ml:latest-gpu"
+  # Allow Ray to automatically detect GPUs
+
+  # worker_image: "rayproject/ray-ml:latest-cpu"
+  # worker_run_options: []
 
 # If a node is idle for this many minutes, it will be removed.
-idle_timeout_minutes: 60
+idle_timeout_minutes: 5
 
 # Cloud-provider specific configuration.
 provider:
@@ -34,10 +43,23 @@ provider:
 # How Ray will authenticate with newly launched nodes.
 auth:
     ssh_user: ubuntu
+# By default Ray creates a new private keypair, but you can also use your own.
+# If you do so, make sure to also set "KeyName" in the head and worker node
+# configurations below. This requires that you have added the key into the
+# project wide meta-data.
+#    ssh_private_key: /path/to/your/key.pem
 
+# Tell the autoscaler the allowed node types and the resources they provide.
+# The key is the name of the node type, which is just for debugging purposes.
+# The node config specifies the launch config and physical instance type.
 available_node_types:
     ray_head_default:
+        # The resources provided by this node type.
         resources: {"CPU": 2}
+        # Provider-specific config for the head node, e.g. instance type. By default
+        # Ray will auto-configure unspecified fields such as subnets and ssh-keys.
+        # For more documentation on available fields, see:
+        # https://cloud.google.com/compute/docs/reference/rest/v1/instances/insert
         node_config:
             machineType: n1-standard-2
             disks:
@@ -46,7 +68,20 @@ available_node_types:
                 type: PERSISTENT
                 initializeParams:
                   diskSizeGb: 50
+                  # See https://cloud.google.com/compute/docs/images for more images
                   sourceImage: projects/deeplearning-platform-release/global/images/common-cpu-v20240922
+
+            # Additional options can be found in in the compute docs at
+            # https://cloud.google.com/compute/docs/reference/rest/v1/instances/insert
+
+            # If the network interface is specified as below in both head and worker
+            # nodes, the manual network config is used.  Otherwise an existing subnet is
+            # used.  To use a shared subnet, ask the subnet owner to grant permission
+            # for 'compute.subnetworks.use' to the ray autoscaler account...
+            # networkInterfaces:
+            #   - kind: compute#networkInterface
+            #     subnetwork: path/to/subnet
+            #     aliasIpRanges: []
     ray_worker_small:
         # The minimum number of worker nodes of this type to launch.
         # This number should be >= 0.
@@ -56,6 +91,10 @@ available_node_types:
         max_workers: 2
         # The resources provided by this node type.
         resources: {"CPU": 2}
+        # Provider-specific config for the head node, e.g. instance type. By default
+        # Ray will auto-configure unspecified fields such as subnets and ssh-keys.
+        # For more documentation on available fields, see:
+        # https://cloud.google.com/compute/docs/reference/rest/v1/instances/insert
         node_config:
             machineType: n1-standard-2
             disks:
@@ -64,14 +103,20 @@ available_node_types:
                 type: PERSISTENT
                 initializeParams:
                   diskSizeGb: 50
+                  # See https://cloud.google.com/compute/docs/images for more images
                   sourceImage: projects/deeplearning-platform-release/global/images/common-cpu-v20240922
-            # scheduling:
-            #   - preemptible: true
+            # Run workers on preemtible instance by default.
+            # Comment this out to use on-demand.
+            scheduling:
+              - preemptible: true
             # Un-Comment this to launch workers with the Service Account of the Head Node
             # serviceAccounts:
             # - email: ray-autoscaler-sa-v1@<project_id>.iam.gserviceaccount.com
             #   scopes:
             #   - https://www.googleapis.com/auth/cloud-platform
+
+    # Additional options can be found in in the compute docs at
+    # https://cloud.google.com/compute/docs/reference/rest/v1/instances/insert
 
 # Specify the node type of the head node (as configured above).
 head_node_type: ray_head_default
@@ -104,11 +149,10 @@ rsync_exclude:
 rsync_filter:
     - ".gitignore"
 
-initialization_commands:
-    - curl -fsSL https://get.docker.com -o get-docker.sh
-    - sudo sh get-docker.sh
-    - sudo usermod -aG docker $USER
-    - sudo systemctl restart docker -f
+# List of commands that will be run before `setup_commands`. If docker is
+# enabled, these commands will run outside the container and before docker
+# is setup.
+initialization_commands: []
 
 # List of shell commands to run to set up nodes.
 setup_commands: []
