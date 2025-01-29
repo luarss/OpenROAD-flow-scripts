@@ -78,9 +78,12 @@ make up
 4. Ray CLI API
 
 ```bash
+# list current entrypoint (run commands on the machine)
+ray job submit --address http://localhost:8265 ls
+
+# runs "hello world" message on ray worker, and prints on head.
 ray job submit --address http://localhost:8265 \
-    --runtime-env '{"container": {"image": "jluarprecisioninno/orfs-autotuner:latest"}}' \
-    -- ls /home/
+    --working-dir scripts -- python3 hello_world.py
 ```
 
 ## Private cluster setup
