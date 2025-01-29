@@ -31,6 +31,9 @@ For private deployments, we might have to use KubeRay
 - Public flow, fixed: via ray API.
 - Public flow, autoscaling
 - test using private registry on dockerhub same flow
+- Scaling concerns
+    - increase storage of head node.
+    - Object store memory - does that affect file transfer?
 
 ## Prerequisites
 
