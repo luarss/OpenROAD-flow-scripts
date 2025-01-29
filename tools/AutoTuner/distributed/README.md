@@ -78,10 +78,11 @@ make up
 4. Ray CLI API
 
 ```bash
-# list current entrypoint (run commands on the machine)
+# Commands on machine (assume files/commands are present on cluster)
 ray job submit --address http://localhost:8265 ls
+ray job submit --address http://localhost:8265 -- python3 distributed.py --design gcd --platform asap7 --config ../../../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
 
-# runs "hello world" message on ray worker, and prints on head.
+# Commands on machine (sync local working dir, note the dir is stored as some /tmp dir)
 ray job submit --address http://localhost:8265 \
     --working-dir scripts -- python3 hello_world.py
 ```
