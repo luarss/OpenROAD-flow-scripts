@@ -80,7 +80,17 @@ make up
 ```bash
 # Commands on machine (assume files/commands are present on cluster)
 ray job submit --address http://localhost:8265 ls
-ray job submit --address http://localhost:8265 -- python3 distributed.py --design gcd --platform asap7 --config ../../../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+
+# Case 1: 1 job
+ray job submit --address http://localhost:8265 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+ 
+# Case 2: 2 job, with resource spec.
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+
+# Case 3: 2 job, with overprovisioned resource spec.
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
 
 # Commands on machine (sync local working dir, note the dir is stored as some /tmp dir)
 ray job submit --address http://localhost:8265 \

@@ -10,8 +10,10 @@ RUN apt-get update && \
 
 # Install AT required packages
 RUN rm -rf ~/.cache/pip
+RUN pip3 install --upgrade pip
 RUN pip3 cache purge
-RUN pip3 install --no-cache-dir -r /OpenROAD-flow-scripts/tools/AutoTuner/requirements.txt
+RUN cd /OpenROAD-flow-scripts/tools/AutoTuner && \
+    pip3 install --no-cache-dir -e .
 
 # ORFS installation dir
-WORKDIR /OpenROAD-flow-scripts/tools/AutoTuner/src/autotuner
+WORKDIR /OpenROAD-flow-scripts/tools/AutoTuner
