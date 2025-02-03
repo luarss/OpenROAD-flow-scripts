@@ -553,6 +553,9 @@ def save_best(results):
     best_config["best_result"] = results.best_result[METRIC]
     trial_id = results.best_trial.trial_id
     new_best_path = f"{LOCAL_DIR}/{args.experiment}/"
+
+    # In remote, task might be picked up by another eligible ray node.
+    os.makedirs(new_best_path, exist_ok=True)
     new_best_path += f"autotuner-best-{trial_id}.json"
     with open(new_best_path, "w") as new_best_file:
         json.dump(best_config, new_best_file, indent=4)
@@ -597,9 +600,6 @@ def transfer_to_head(file_path):
     """
     Transfer files from worker to the head node.
     """
-    if args.server is None:
-        print("[INFO TUN-0011] No Ray server specified. Skipping transfer.")
-        sys.exit(0)
     workers = ray.nodes()
     # TODO: Can this for loop be done async?
     for worker_id, worker in enumerate(workers):
@@ -667,6 +667,10 @@ def main():
 
         task_id = save_best.remote(analysis)
         _ = ray.get(task_id)
+
+        if not args.server:
+            print("[INFO TUN-0011] No Ray server specified. Skipping transfer.")
+            sys.exit(0)
         transfer_to_head(LOCAL_DIR)
         print(f"[INFO TUN-0002] Best parameters found: {analysis.best_config}")
 
