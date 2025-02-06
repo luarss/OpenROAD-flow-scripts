@@ -22,6 +22,7 @@ docker:
   pull_before_run: true
   run_options:
     - --ulimit nofile=65536:65536
+    - -v $HOME/flow:/OpenROAD-flow-scripts/flow
 
 # If a node is idle for this many minutes, it will be removed.
 idle_timeout_minutes: 60
@@ -106,7 +107,11 @@ rsync_exclude:
 rsync_filter:
     - ".gitignore"
 
-initialization_commands: []
+# List of commands that will be run before `setup_commands`. If docker is
+# enabled, these commands will run outside the container and before docker
+# is setup.
+initialization_commands:
+    - mkdir -p $HOME/flow
 
 # List of shell commands to run to set up nodes.
 setup_commands: []
