@@ -1,6 +1,8 @@
 include .env
 export
 
+BASE_TAG=$(shell cd ../../../ && ./etc/DockerTag.sh -dev)
+ORFS_IMAGE := openroad/orfs:v3.0-2395-gd62c05a8  # update manually (do not use latest)
 ORFS_AUTOTUNER_IMAGE := orfs-autotuner
 
 .PHONY: init
@@ -13,29 +15,21 @@ clean:
 	@echo "Cleaning up old images"
 	@docker rmi ${ORFS_AUTOTUNER_IMAGE}:latest || true
 
-.PHONY: base
-base: clean
-	@echo "Building base image..."
-	@cd ../../../ && ./build_openroad.sh
-
 .PHONY: docker
-docker: base
+docker: clean
 	@echo "Building docker image..."
-	@export BASE_TAG=$(shell cd ../../../ && ./etc/DockerTag.sh -dev) && \
-		echo "Base image tag: $$BASE_TAG" && \
-		docker build -t ${ORFS_AUTOTUNER_IMAGE}:latest -f Dockerfile . --build-arg BASE_TAG=$$BASE_TAG && \
-		docker tag ${ORFS_AUTOTUNER_IMAGE}:latest ${ORFS_AUTOTUNER_IMAGE}:$$BASE_TAG
+	@docker build -t ${ORFS_AUTOTUNER_IMAGE}:latest -f Dockerfile --build-arg BASE_IMAGE=${ORFS_IMAGE} .. | tee docker-build.log
+	@docker tag ${ORFS_AUTOTUNER_IMAGE}:latest ${ORFS_AUTOTUNER_IMAGE}:$(BASE_TAG)
 
 .PHONY: upload
 upload: docker
 	@echo "Uploading docker image..."
 	@docker login -u $(DOCKERHUB_USERNAME) -p $(DOCKERHUB_PASSWORD)
-	@export BASE_TAG=$(shell cd ../../../ && ./etc/DockerTag.sh -dev) && \
-		echo "Base image: $$BASE_TAG" && \
-		docker tag ${ORFS_AUTOTUNER_IMAGE}:latest ${DOCKERHUB_USERNAME}/${ORFS_AUTOTUNER_IMAGE}:$$BASE_TAG && \
-		docker tag ${ORFS_AUTOTUNER_IMAGE}:latest ${DOCKERHUB_USERNAME}/${ORFS_AUTOTUNER_IMAGE}:latest && \
-		docker push ${DOCKERHUB_USERNAME}/${ORFS_AUTOTUNER_IMAGE}:$$BASE_TAG && \
-		docker push ${DOCKERHUB_USERNAME}/${ORFS_AUTOTUNER_IMAGE}:latest
+	@echo "Base image: $(BASE_TAG)"
+	@docker tag ${ORFS_AUTOTUNER_IMAGE}:latest ${DOCKERHUB_USERNAME}/${ORFS_AUTOTUNER_IMAGE}:$(BASE_TAG)
+	@docker tag ${ORFS_AUTOTUNER_IMAGE}:latest ${DOCKERHUB_USERNAME}/${ORFS_AUTOTUNER_IMAGE}:latest
+	@docker push ${DOCKERHUB_USERNAME}/${ORFS_AUTOTUNER_IMAGE}:$(BASE_TAG)
+	@docker push ${DOCKERHUB_USERNAME}/${ORFS_AUTOTUNER_IMAGE}:latest
 	@docker logout
 
 .PHONY: up

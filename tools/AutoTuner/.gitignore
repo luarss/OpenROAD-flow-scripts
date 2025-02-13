@@ -14,3 +14,6 @@ autotuner_env
 # Ray distributed
 public.yaml
 private.yaml
+
+# Docker build
+docker-build.log

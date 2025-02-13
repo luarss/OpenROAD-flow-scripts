@@ -25,6 +25,7 @@ For private deployments, we might have to use KubeRay
 
 ## TODO
 
+- Look up how to preserve the cache during pip install. 
 - Public flow, fixed: via autotuner script
     - Tune
     - Sweep
