@@ -2,7 +2,7 @@ include .env
 export
 
 BASE_TAG=$(shell cd ../../../ && ./etc/DockerTag.sh -dev)
-ORFS_IMAGE := openroad/orfs:v3.0-2395-gd62c05a8  # update manually (do not use latest)
+ORFS_IMAGE := openroad/orfs:v3.0-2422-g3dc9e665  # update manually (do not use latest)
 ORFS_AUTOTUNER_IMAGE := orfs-autotuner
 
 .PHONY: init

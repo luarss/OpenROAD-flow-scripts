@@ -49,7 +49,7 @@ available_node_types:
                 type: PERSISTENT
                 initializeParams:
                   diskSizeGb: 50
-                  sourceImage: projects/deeplearning-platform-release/global/images/common-cpu-v20240922
+                  sourceImage: projects/ubuntu-os-cloud/global/images/family/ubuntu-2204-lts
     ray_worker_small:
         # The minimum number of worker nodes of this type to launch.
         # This number should be >= 0.
@@ -67,7 +67,7 @@ available_node_types:
                 type: PERSISTENT
                 initializeParams:
                   diskSizeGb: 50
-                  sourceImage: projects/deeplearning-platform-release/global/images/common-cpu-v20240922
+                  sourceImage: projects/ubuntu-os-cloud/global/images/family/ubuntu-2204-lts
             # scheduling:
             #   - preemptible: true
             # Un-Comment this to launch workers with the Service Account of the Head Node
@@ -111,7 +111,12 @@ rsync_filter:
 # enabled, these commands will run outside the container and before docker
 # is setup.
 initialization_commands:
+    - rm -rf ./OpenROAD-flow-scripts
     - git clone https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts.git
+    - curl -fsSL https://get.docker.com -o get-docker.sh
+    - sudo sh get-docker.sh
+    - sudo usermod -aG docker $USER
+    - sudo systemctl restart docker -f
 
 # List of shell commands to run to set up nodes.
 setup_commands: []
