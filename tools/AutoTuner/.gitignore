@@ -17,3 +17,6 @@ private.yaml
 
 # Docker build
 docker-build.log
+
+# GCP
+service_account.json

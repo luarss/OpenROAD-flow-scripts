@@ -12,3 +12,4 @@ urllib3<=1.26.15
 matplotlib==3.10.0
 google-api-python-client==2.151.0
 cryptography==44.0.0
+cloudpathlib==0.20.0

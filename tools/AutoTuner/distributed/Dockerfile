@@ -1,6 +1,9 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-openroad/orfs:latest}
 
+# Customize this based on the user's needs
+ENV GOOGLE_APPLICATION_CREDENTIALS=/OpenROAD-flow-scripts/service_account.json
+
 # Install AT required packages
 WORKDIR /OpenROAD-flow-scripts/tools/AutoTuner
 RUN pip3 install --no-cache-dir --upgrade pip
@@ -20,4 +23,3 @@ COPY . /OpenROAD-flow-scripts/tools/AutoTuner
 
 # Install AT package in editable mode
 RUN pip3 install --no-cache-dir -e .
-

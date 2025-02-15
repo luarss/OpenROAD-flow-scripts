@@ -41,17 +41,20 @@ For private deployments, we might have to use KubeRay
 Make sure Autotuner prerequisites are installed. To do so, refer to the installation script.
 
 ```bash
-pip install ray[default] google-api-python-client cryptography
+pip install ray[default] google-api-python-client cryptography cloudpathlib
 ```
 
 ## Public cluster setup
 
-0. Authenticate the necessary GCP account with enough privileges to do:
+0a. Authenticate the necessary GCP account with enough privileges to do:
 - `setIamPolicy`
 
 ```bash
 gcloud auth application-default login
 ```
+
+0b. Generate your service account keys for `ray-autoscaler-sa-v1@<project_id>.iam.gserviceaccount.com`.
+Rename it `service_account.json`.
 
 1. Set up `.env` with Docker registry username/password. Also, set up the `public.yaml`
 file accordingly to your desired specifications.
@@ -86,16 +89,25 @@ ray job submit --address http://localhost:8265 ls
 ray job submit --address http://localhost:8265 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
  
 # Case 2: 2 job, with resource spec.
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+HEAD_SERVER=10.138.0.51
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
 
 # Case 3: 2 job, with overprovisioned resource spec.
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+HEAD_SERVER=10.138.0.12
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
 
 # Commands on machine (sync local working dir, note the dir is stored as some /tmp dir)
 ray job submit --address http://localhost:8265 \
     --working-dir scripts -- python3 hello_world.py
+```
+
+## Useful commands
+
+```bash
+HEAD_SERVER=10.138.0.12
+ray job stop --address $HEAD_SERVER:6379 --no-wait {{ JOB_SUBMIT_ID }}
 ```
 
 ## Private cluster setup
