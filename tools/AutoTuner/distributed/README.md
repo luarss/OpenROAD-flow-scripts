@@ -86,22 +86,21 @@ make up
 ray job submit --address http://localhost:8265 ls
 
 # Case 1: 1 job
-ray job submit --address http://localhost:8265 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+ray job submit --address http://localhost:8265 -- python3 -m autotuner.distributed --design gcd --platform asap7 --config ../../flow/designs/asap7/gcd/autotuner.json --cloud_dir gs://autotuner_test tune --samples 1
  
-# Case 2: 2 job, with resource spec.
+# Case 2A: 2 job, with resource spec.
 HEAD_SERVER=10.138.0.13
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json --cloud_dir gs://autotuner_test tune --samples 1
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json --cloud_dir gs://autotuner_test tune --samples 1
 
 # Case 2B: 2 job, with resource spec (sweep)
 HEAD_SERVER=10.138.0.13
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config distributed-sweep-example.json sweep
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config distributed-sweep-example.json sweep
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ./src/autotuner/distributed-sweep-example.json --cloud_dir gs://autotuner_test sweep
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ./src/autotuner/distributed-sweep-example.json --cloud_dir gs://autotuner_test sweep
 
-# Case 3: 2 job, with overprovisioned resource spec.
-HEAD_SERVER=10.138.0.12
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
-ray job submit --address http://localhost:8265 --entrypoint-num-cpus 2 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json tune --samples 1
+# Case 3: Overprovisioned resource spec (should fail because the cluster cannot meet this demand.)
+HEAD_SERVER=10.138.0.13
+ray job submit --address http://localhost:8265 --entrypoint-num-cpus 4 -- python3 -m autotuner.distributed --design gcd --platform asap7 --server $HEAD_SERVER --config ../../flow/designs/asap7/gcd/autotuner.json --cloud_dir gs://autotuner_test tune --samples 1
 
 # Commands on machine (sync local working dir, note the dir is stored as some /tmp dir)
 ray job submit --address http://localhost:8265 \
@@ -111,7 +110,7 @@ ray job submit --address http://localhost:8265 \
 ## Useful commands
 
 ```bash
-HEAD_SERVER=10.138.0.12
+HEAD_SERVER=10.138.0.13
 ray job stop --address $HEAD_SERVER:6379 --no-wait {{ JOB_SUBMIT_ID }}
 ```
 

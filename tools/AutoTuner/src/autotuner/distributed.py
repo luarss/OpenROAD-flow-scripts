@@ -339,8 +339,8 @@ def parse_arguments():
         "--cloud_dir",
         type=str,
         metavar="<str>",
-        default="gs://autotuner_test",
-        help="Cloud storage directory for logs. Currently supports only GCP.",
+        default=None,
+        help="Cloud storage directory for logs, defaults to None. Currently supports only GCP.",
     )
 
     # ML
