@@ -58,8 +58,8 @@ class RefFileCheck(unittest.TestCase):
             f"{self.exec}"
             f" --design {self.design}"
             f" --platform {self.platform}"
-            f" --config {c}"
             f" tune --samples 1"
+            f" --config {c}"
             for c in configs
         ]
 
