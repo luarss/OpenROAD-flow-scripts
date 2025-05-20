@@ -29,3 +29,15 @@ include = [
 
 [tool.setuptools]
 include-package-data = true
+
+[tool.coverage.run]
+omit = [
+    "*/test/*",
+    "*/__init__.py"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:"
+]
