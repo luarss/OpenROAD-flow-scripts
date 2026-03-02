@@ -342,7 +342,7 @@ def extract_metrics(
             )
             total += delta
 
-            stage = key.removesuffix("__runtime__total")
+            stage = key[: -len("__runtime__total")]
             elapsed_seconds[stage + "__elapsed_seconds"] = delta.total_seconds()
 
     if failed:
