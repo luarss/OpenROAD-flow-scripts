@@ -347,6 +347,7 @@ def extract_metrics(
 
     if failed:
         metrics_dict["total_time"] = "ERR"
+        metrics_dict["total_elapsed_seconds"] = "ERR"
     else:
         metrics_dict["total_time"] = str(total)
         metrics_dict["total_elapsed_seconds"] = total.total_seconds()
