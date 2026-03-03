@@ -101,6 +101,28 @@ export TAPCELL_TCL ?= $(PLATFORM_DIR)/tapcell.tcl
 
 export MACRO_PLACE_HALO ?= 40 40
 
+# Will be placed left to right
+export IO_NORTH_PINS ??=
+export IO_SOUTH_PINS ??=
+# Will be placed bottom to top
+export IO_EAST_PINS ??=
+export IO_WEST_PINS ??=
+
+# Variables for bondpad
+export IO_BONDPAD_SIZE ?= 70
+export IO_BONDPAD_NAME ?= bondpad_70x70
+# Variables for padframe
+export IO_LENGTH ?= 180
+export IO_WIDTH ?= 80
+export IO_SEALRING_OFFSET ?= 70
+export IO_FILLER_CELLS ?= \
+sg13g2_Filler10000 \
+sg13g2_Filler4000 \
+sg13g2_Filler2000 \
+sg13g2_Filler1000 \
+sg13g2_Filler400 \
+sg13g2_Filler200
+
 #---------------------------------------------------------
 # Place
 # --------------------------------------------------------
@@ -154,4 +176,4 @@ export CDL_FILE ?= $(PLATFORM_DIR)/cdl/sg13g2_stdcell.cdl
 
 # SRAM macros have empty placeholder cells included. Just ignore them to not
 # thrown an error.
-export GDS_ALLOW_EMPTY = RM_IHPSG13_1P_BITKIT_16x2_(CORNER|EDGE_TB|LE_con_corner|LE_con_edge_lr|LE_con_tap_lr|POWER_ramtap|TAP|TAP_LR)
+export GDS_ALLOW_EMPTY = RM_IHPSG13_\dP_BITKIT_16x2_(CORNER|EDGE_TB|LE_con_corner|LE_con_edge_lr|LE_con_tap_lr|POWER_ramtap|TAP|TAP_LR)
