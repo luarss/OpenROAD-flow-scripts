@@ -118,7 +118,7 @@ KLAYOUT_DIR = $(abspath $(FLOW_HOME)/../tools/install/klayout/)
 KLAYOUT_BIN_FROM_DIR = $(KLAYOUT_DIR)/klayout
 
 KEPLER_FORMAL_EXE ?= $(abspath $(FLOW_HOME)/../tools/install/kepler-formal/bin/kepler-formal)
-export KEPLER_FORMAL_EXE := $(KEPLER_FORMAL_EXE)
+export KEPLER_FORMAL_EXE
 
 ifeq ($(wildcard $(KLAYOUT_BIN_FROM_DIR)), $(KLAYOUT_BIN_FROM_DIR))
 export KLAYOUT_CMD ?= sh -c 'LD_LIBRARY_PATH=$(dir $(KLAYOUT_BIN_FROM_DIR)) $$0 "$$@"' $(KLAYOUT_BIN_FROM_DIR)
@@ -187,6 +187,7 @@ export RESULTS_ODB = $(notdir $(sort $(wildcard $(RESULTS_DIR)/*.odb)))
 export RESULTS_DEF = $(notdir $(sort $(wildcard $(RESULTS_DIR)/*.def)))
 export RESULTS_GDS = $(notdir $(sort $(wildcard $(RESULTS_DIR)/*.gds)))
 export RESULTS_OAS = $(notdir $(sort $(wildcard $(RESULTS_DIR)/*.oas)))
+export RESULTS_V = $(notdir $(sort $(wildcard $(RESULTS_DIR)/*.v)))
 export GDS_MERGED_FILE = $(RESULTS_DIR)/6_1_merged.$(STREAM_SYSTEM_EXT)
 
 define get_variables
