@@ -124,15 +124,13 @@ for rc_file in args.rc_file:
 
             data[design][netName] = {
                 "type": tokens[1],
-                "gpl_res": float(tokens[2]),
-                "gpl_cap": float(tokens[3]),
-                "grt_res": float(tokens[4]),
-                "grt_cap": float(tokens[5]),
-                "rcx_res": float(tokens[6]),
-                "rcx_cap": float(tokens[7]),
+                "grt_res": float(tokens[2]),
+                "grt_cap": float(tokens[3]),
+                "rcx_res": float(tokens[4]),
+                "rcx_cap": float(tokens[5]),
             }
 
-            layer_lengths = [float(tok) for tok in tokens[8:]]
+            layer_lengths = [float(tok) for tok in tokens[6:]]
             for i, length in enumerate(layer_lengths):
                 if length > 0:
                     active_layers.add(i)
